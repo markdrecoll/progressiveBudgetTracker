@@ -8,13 +8,12 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 
 app.use(logger("dev"));
-
 app.use(compression());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
 app.use(express.static("public"));
 
+// connects to the online database or local if it cannot be reached.
 mongoose.connect(
   process.env.MONGODB_URI || 'mongodb://localhost/budget',
   {

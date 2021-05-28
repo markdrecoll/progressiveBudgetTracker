@@ -1,5 +1,3 @@
-console.log('service worker console log');
-
 const CACHE_NAME = 'static-cache-v2';
 const DATA_CACHE_NAME = 'data-cache-v1';
 
@@ -13,20 +11,16 @@ const FILES_TO_CACHE = [
   './icons/icon-512x512.png'
 ];
 
-// install
 self.addEventListener('install', function (event) {
-  // pre cache image data
   event.waitUntil(
     caches.open(DATA_CACHE_NAME).then((cache) => cache.add('/api/transaction'))
   );
 
-  // pre cache all static public
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(FILES_TO_CACHE))
   );
 
-  // tell the browser to activate this service worker immediately once it
-  // has finished installing
+  // activate the service worker
   self.skipWaiting();
 });
 
@@ -48,7 +42,7 @@ self.addEventListener('activate', function (event) {
 });
 
 self.addEventListener('fetch', function (event) {
-  // code to handle requests goes here
+  // requests
   if (event.request.url.includes('/api/')) {
     event.respondWith(
       caches
@@ -56,7 +50,7 @@ self.addEventListener('fetch', function (event) {
         .then((cache) => {
           return fetch(event.request)
             .then((response) => {
-              // If the response was good, clone it and store it in the cache.
+              // if response is alright clone it
               if (response.status === 200) {
                 cache.put(event.request.url, response.clone());
               }
@@ -64,7 +58,7 @@ self.addEventListener('fetch', function (event) {
               return response;
             })
             .catch((err) => {
-              // Network request failed, try to get it from the cache.
+              // retrieve from cache if can't connect
               return cache.match(event.request);
             });
         })
